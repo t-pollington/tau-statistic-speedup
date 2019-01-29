@@ -13,8 +13,8 @@ NumericVector getTau(NumericVector ORIG_ID, NumericVector x, NumericVector y, Nu
   double dist2 = 0;
   double r2 = 0;
   double r2_low = 0;
-  long long num_cnt, denom_cnt; /*counters for those filling conditions*/
-  int f_ans = 3; /*used to hold the result of the function*/
+  long long num_cnt, denom_cnt; //counters for those filling conditions//
+  int f_ans = 3; //used to hold the result of the function//
   int serialintvl = 7; //mean serial interval of the disease
   int r_size = r.size();
   int N = ORIG_ID.size();
