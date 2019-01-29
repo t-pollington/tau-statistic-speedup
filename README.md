@@ -18,11 +18,10 @@ The relatedness of a case pair *z<sub>ij</sub>*, is determined here using tempor
 ## How the speedup was done
 
 ## Replication
-We regret that we cannot share the dataset to replicate these results but can describe what is needed:
+Unfortunately I can't share the dataset for replication but can describe what is needed:
 * R v3.5.1
 * library `Rcpp` for `sourceCpp()`
-* data  = (unique index, x-coord, y-coord, onset_time)
-**DATAFRAME OR MATRIX?
+* data = R `matrix`-type object with named columns: "index";"xcoord";"ycoord";"onset"
 
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
