@@ -22,9 +22,10 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 *Description of previous implementation*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
 ) (and internally `get_pi()` on [line 427](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L427
 )). My `get_tau()` function skips that step for easier reading here; so in essence the heart of the code was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
-). `get_pi()` loops over `i` distance windows (where `i` is not to be confused with *i* cases in the equation above!); then `j` people and their paired links with `k` people as another loop. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
-) where the R function `Rfun` is called within C for each of the `i`x`j`x`k` loop evaluations.
-*Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user to do as if their `Rfun` was a relatively simple if-else loop to choose between cases {1,2,3} (for the three options of the numerator or denominator counts, 'cases' doesn't mean ill people here but options!) then it should be similarly easy in C.
+). `get_pi()` has 3 nested loops: over distance windows, then a double loop for paired links between people. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
+) where the R function `Rfun` is called within C for **each** of the `i`x`j`x`k` loop evaluations.
+
+*Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user as if their `Rfun` was a simple if-else loop to choose between cases {1,2,3} (for the three options of the numerator or denominator counts; 'cases' doesn't mean ill people here but options!) then it should be pretty similar in C.
 
 **LINK R SCRIPT FILE**
 2. Stop repeat evaluations of undirected edges (~2x speedup)
@@ -45,6 +46,7 @@ Unfortunately I can't share the dataset for replication but can describe what is
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
 * GPU computations. A good starting place for rapid code development is MATLAB's `gpuArray` class.
+* **Have you found an even faster way to do this? I'm open in principle to pull requests to this repo but message me to check.**
 
 ## References
 *  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
