@@ -18,11 +18,15 @@ The relatedness of a case pair *z<sub>ij</sub>*, is determined here using tempor
 ## How the speedup was done
 
 ## Replication
-We regret that we cannot share the dataset to replicate these results but can describe the data structure.
-**DESCRCIBE LIBRARIES AND DATA STRUCTURE HERE**
+We regret that we cannot share the dataset to replicate these results but can describe what is needed:
+* R v3.5.1
+* library `Rcpp` for `sourceCpp()`
+* data  = (unique index, x-coord, y-coord, onset_time)
+**DATAFRAME OR MATRIX?
 
 ## Features not implemented
-* parallel computations across the `i for loop`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
+* parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
 * GPU computations. A good starting place for rapid code development is MATLAB's `gpuArray` class.
 
-Thank you to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste in the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their domain. Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
+## Credits
+Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste in the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their domain. Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
