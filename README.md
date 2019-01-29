@@ -6,7 +6,7 @@ I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plos
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" title="\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" /></a>
 
-which is the ratio of the prevalence of any case *j* which is related (*z<sub>ij</sub> = 1, else 0*) to any case *i*, within an annulus region (radii *d<sub>1</sub>*,*d<sub>2</sub>*) around case *i*, versus the same but at any *d<sub>ij</sub>* distance separation (including *d<sub>ij</sub>=0*).
+which is the ratio of the prevalence of any case *j* which is related (*z<sub>ij</sub> = 1, else 0*) to any case *i*, within an annulus region (radii *d<sub>1</sub>*,*d<sub>2</sub>*) around case *i*, versus the same but at any *d<sub>ij</sub>* distance separation (including none i.e. *d<sub>ij</sub>=0*).
 Where the prevalence is estimated as:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" title="\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" /></a>
@@ -19,8 +19,14 @@ The relatedness of a case pair *z<sub>ij</sub>*, is determined here using tempor
 Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) from `spatialfuncs.c` source file for the[2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), applied the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `get_tau()` without needing `library(IDSpatialStats)`. I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
 
 1. Stop calls to R within C (~26x speedup)
-Previously the R function `get.tau()` would call the `get_tau()` C function and then internally call `get_pi()`. My `get_tau()` function skips that step.  skipped that step  the C function `get_tau()` with all the data it needed. 
+*Description of previous implementation*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
+) (and internally `get_pi()` on [line 427](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L427
+)). My `get_tau()` function skips that step for easier reading here; so in essence the heart of the code was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
+). `get_pi()` loops over `i` distance windows (where `i` is not to be confused with *i* cases in the equation above!); then `j` people and their paired links with `k` people as another loop. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
+) where the R function `Rfun` is called within C for each of the `i`*`j`*`k` loop evaluations.
+*Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user to do as if their `Rfun` was a relatively simple if-else loop to choose the cases {1,2,3} then similarly be easy to do in C.
 
+**LINK R SCRIPT FILE**
 2. Stop repeat evaluations of undirected edges (~2x speedup)
 **explain**
 3. Split the `posmat` data matrix into multiple vectors (~20% speedup)
@@ -28,7 +34,7 @@ Previously the R function `get.tau()` would call the `get_tau()` C function and 
 4. Work with squared distances to avoid `sqrt()` (negligible speedup)
 **explain**
 
-##DIFFICULTY UPDATED IDSPATIALSTATS FOR SOME OF THESE##
+##DIFFICULTY UPDATED IDSPATIALSTATS FOR SOME OF THESE AND GIVE REASON FOR R FUNCTION UTILITY##
 
 ## Replication
 Unfortunately I can't share the dataset for replication but can describe what is needed:
