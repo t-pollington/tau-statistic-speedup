@@ -2,7 +2,7 @@
 An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 license please reference this cite-able resource (DoI: **xxxxxxxxxxxxxxxxxTBC**).
 
 ## The statistic
-I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References) as we had data on the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}" title="\hat{\tau}" /></a> from the development repo of the `IDSpatialStats::get.tau()` function, leading to a ~**52x speedup**.
+I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References-and-credits) as we had data on the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}" title="\hat{\tau}" /></a> from the development repo of the `IDSpatialStats::get.tau()` function, leading to a ~**52x speedup**.
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" title="\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" /></a>
 
@@ -11,7 +11,7 @@ Where the prevalence is estimated as:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" title="\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" /></a>
 
-which is the proportion of related case pairs within a specified distance versus the same for any pairs (irrespective of relatedness or being a case), for *N* people with indicator function **1**(⋅). Note a minor correction here versus the original by [[Lessler et al]](#References) is that we use half-closed distance intervals which was updated by @gilesjohnr on 17 Dec 2018 in their most recent [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit.
+which is the proportion of related case pairs within a specified distance versus the same for any pairs (irrespective of relatedness or being a case), for *N* people with indicator function **1**(⋅). Note a minor correction here versus the original by [[Lessler et al]](#References-and-credits) is that we use half-closed distance intervals which was updated by @gilesjohnr on 17 Dec 2018 in their most recent [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit.
 
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information, if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> then *z_<sub>ij</sub>*=1 else 0.
 
@@ -63,9 +63,7 @@ Unfortunately I can't share the dataset but can describe what you need:
 * **Have you found an even faster way to do this? I'm open in principle to pull requests to this repo but message me to check.**
 * **Found a bug or even a typo? I'd love to know! We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
 
-## References
+## References and credits
 *  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
 * `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) hasn't been used as it is several months behind the development repo.
-
-## Credits
-Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their site—Github **still** doesn't consider renderring LaTeX in README.md is a core functionality of code development!
+* Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their site—Github **still** doesn't consider renderring LaTeX in README.md is a core functionality of code development!
