@@ -1,5 +1,5 @@
 # Tau statistic speedup
-An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 licence please cite this resource (DoI: **xxxxxxxxxxxxxxxxx**).
+An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 license please cite this resource (DoI: **xxxxxxxxxxxxxxxxx**).
 
 ## The statistic
 I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References) as we had data for the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic from the development repo of the `IDSpatialStats::get.tau()` function, leading to ~**52x speedup**.
@@ -44,13 +44,13 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 ## What is the role of IDSpatialStats?
 
-Although I have found enormous speedup improvements (these are particular important when constructing 500 bootstrapped percentile confidence intervals that can take tens of hours for a real dataset of 16,000 people) there is still an important role for the IDSpatialStats package in tau statistic calculations. The main speedup by writing the R `Rfun` function in C requires additional user intervention and good understanding of the tau statistic. This then means one has to abandon IDSpatialStats entirely which is not feasible for some of its user base. Given the novelty of this recently introduced statistic the R package serves an important role for first-time users and those who need to easily compute the tau statistic for a relatively small dataset.
+Although I have found enormous speedup improvements (constructing 500 bootstrapped percentile confidence intervals can take tens of hours for a real dataset of 16,000 people) there is still an important role for the IDSpatialStats package in tau statistic calculations. The main speedup by writing the R `Rfun` function in C requires additional user intervention and good understanding of the tau statistic. This then means one has to abandon IDSpatialStats entirely which completely defeats its ease and is not feasible for some users. Given the novelty of this recently introduced statistic, the R package serves an important role for first-time users and those who need to easily compute the tau statistic for a relatively small dataset.
 
 ## Replication
 Unfortunately I can't share the dataset for replication but can describe what is needed:
 * R v3.5.1
 * library `Rcpp` for `sourceCpp()`. Note that `IDSpatialStats` isn't required.
-* data = R `matrix`-type object with named columns: "ORIG_ID"; "x"; "y"; "onset" and no missing data. For non-cases onset should be numerically coded as "-999".
+* data = R `matrix`-type object with columns named: "ORIG_ID"; "x"; "y"; "onset" and no missing data. For non-cases, the "onset" column should be numerically coded as "-999".
 
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
