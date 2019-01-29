@@ -19,7 +19,7 @@ The relatedness of a case pair *z<sub>ij</sub>*, is determined here using tempor
 Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) from `spatialfuncs.c` source file for the[2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), applied the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `get_tau()` without needing `library(IDSpatialStats)`. I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
 
 1. Stop calls to R within C (~26x speedup)
-Previously 
+Previously the R function `get.tau()` would call the `get_tau()` C function and then internally call `get_pi()`. My `get_tau()` function skips that step.  skipped that step  the C function `get_tau()` with all the data it needed. 
 
 2. Stop repeat evaluations of undirected edges (~2x speedup)
 **explain**
@@ -27,6 +27,8 @@ Previously
 **explain**
 4. Work with squared distances to avoid `sqrt()` (negligible speedup)
 **explain**
+
+##DIFFICULTY UPDATED IDSPATIALSTATS FOR SOME OF THESE##
 
 ## Replication
 Unfortunately I can't share the dataset for replication but can describe what is needed:
