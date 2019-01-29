@@ -1,4 +1,4 @@
-rm(list = ls()) #clean up
+rm(list = ls()) #clean up from before
 library(Rcpp) #sourceCpp()
 setwd(FolderWhereYouStoreYourData)
 load(file = "YourData.RData") #say you have called your matrix object "X"
