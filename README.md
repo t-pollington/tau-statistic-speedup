@@ -2,7 +2,7 @@
 An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package.
 
 ## Introduction
-I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=7 "Lessler et al. Appendix 6, p7") of the tau statistic as we had data for the underlying population (i.e. non-cases as well as cases) containing months of disease onset and UTM coordinates of their household. I optimised the implementation of the tau statistic from the development repo of the `IDSpatialStats::get.tau()` function, leading to ~**52x speedup**. 
+I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=7 "Lessler et al. Appendix 6, p7") of the tau statistic as we had data for the underlying population (i.e. non-cases as well as cases) containing months of disease onset and UTM coordinates of their household. I optimised the implementation of the tau statistic from the development repo of the `IDSpatialStats::get.tau()` function, leading to ~**52x speedup**.
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}(d_1,d_2)&space;=&space;\frac{\hat{\theta}(d_1,d_2)}{\hat{\theta}(0,\infty)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}(d_1,d_2)&space;=&space;\frac{\hat{\theta}(d_1,d_2)}{\hat{\theta}(0,\infty)}" title="\hat{\tau}(d_1,d_2) = \frac{\hat{\theta}(d_1,d_2)}{\hat{\theta}(0,\infty)}" /></a>
 
@@ -16,9 +16,15 @@ which is the ratio of the number of related case pairs within a specified distan
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a>.
 
 ## How the speedup was done
+Rather than running `IDSpatialStats::get.tau()` in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) of the C source file `spatialfuncs.c`, for their commit [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a) "Commit 2782d6d on 17 Dec 2018"), amended the code for the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and calling the C function. I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
+
 1. Stop calls to R within C (~26x speedup)
+Previously 
+
 2. Stop repeat evaluations of undirected edges (~2x speedup)
+**explain**
 3. Split the `posmat` data matrix into multiple vectors (~20% speedup)
+**explain**
 4. Work with squared distances to avoid `sqrt()` (negligible speedup)
 **explain**
 
@@ -34,7 +40,7 @@ Unfortunately I can't share the dataset for replication but can describe what is
 
 ## References
 *  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
-* `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr
+* `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that we have not used code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) as it is several months behind the development repo.
 
 ## Credits
-Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste in the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their domain. Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
+Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their domain. Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
