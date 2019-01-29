@@ -47,6 +47,7 @@ Unfortunately I can't share the dataset for replication but can describe what is
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
 * GPU computations. A good starting place for rapid code development is MATLAB's `gpuArray` class.
 * **Have you found an even faster way to do this? I'm open in principle to pull requests to this repo but message me to check.**
+* **Found a bug or even a typo? I'd love to know! No I'm not one of those scientists who gets irrationally offended when things get criticised. We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
 
 ## References
 *  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
