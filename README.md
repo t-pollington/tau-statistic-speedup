@@ -22,46 +22,46 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 *Currently*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
 ) (and internally `get_pi()` on [line 427](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L427
-)). My `get_tau()` function skips that step for easier reading here; so in essence the heart of the code was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
+)). My `getTau()` function skips that step for easier reading here, not contributing to the speedup; so in essence the heart of the code isolated was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
 ). `get_pi()` has 3 nested loops: over distance windows, then a double loop for paired links between people. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
 ) where the R function `Rfun` is called within C for **each** of the `i`x`j`x`k` loop evaluations.
 
-*Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user as if their `Rfun` was a simple if-else loop to choose between cases {1,2,3} (for the three options of the numerator or denominator counts; 'cases' doesn't mean ill people here but options!) then it should be pretty similar in C.
+*Change*: Formulate `Rfun` within `getTau`. I think this is relatively easy for an R user as if their `Rfun` was a simple if-else loop to choose between the cases {1,2,3} (for the three options of the numerator or denominator counts; 'cases' don't mean ill people here!), then it should be pretty similar in C.
 
 2. **Stop repeat evaluations of undirected edges** (~2x speedup)
 
-*Currently*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i* and *j* switching due to the modulus function. In most temporally-related or serotype-shared scenarios the pairs are undirected and so the summation is really 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{j<i}" /></a>.
+*Currently*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i*,*j* switching due to the modulus function. In most temporally-related or serotype-shared scenarios the pairs are undirected and so the summation should really be 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{\mathbf{j<i}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{\mathbf{j<i}}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{\mathbf{j<i}}" /></a>.
 
-*Change*: So we apply this change and understandably get a ~2x speedup.
+*Change*: Understandably by halving the loop we get a ~2x speedup.
 
 3. **Split the `posmat` data matrix into multiple vectors** (~20% speedup)
 
-*Currently*: As the loops sequentially go through `i`, `j` & `k` if posmat is large then the next rows value in memory may not be that close to the current location and this extra memory access time will make things slow.
+*Currently*: `posmat` is the matrix argument that gets fed into `get.tau()`. As the loops sequentially go through `i`, `j` & `k`, if posmat is large columnwise then the next row's value in memory may not be that close to the current location and this extra memory access time will add delays.
 
 *Change*: Using vectors for each variable guarantees that the next observation for a variable will be next in memory. 
 
 4. **Work with squared distances to avoid `sqrt()`** (negligible speedup)
 
-*Currently*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance needed to be calculated. 
+*Currently*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance was calculated. 
 
-*Change*: Working with squared distance ranges can then mean that `sqrt` is made redundant. 
+*Change*: Working with squared distance ranges can make `sqrt()` redundant. 
 
 ## What is the role of IDSpatialStats?
 
-Although I have found enormous speedup improvements (constructing 500 bootstrapped percentile confidence intervals can take tens of hours for a real dataset of 16,000 people) there is still an important role for the IDSpatialStats package in tau statistic calculations. The main speedup by writing the R `Rfun` function in C requires additional user intervention and good understanding of the tau statistic. This then means one has to abandon IDSpatialStats entirely which completely defeats its ease and is not feasible for some users. Given the novelty of this recently introduced statistic, the R package serves an important role for first-time users and those who need to easily compute the tau statistic for a relatively small dataset. This code is also for one form of the statistic while the R pckage offers much functionality besides.
+Although I have found enormous speedup improvements (constructing 500 bootstrapped percentile confidence intervals can take tens of hours for a real dataset of 16,000 people) there is still an important role for the IDSpatialStats package in tau statistic calculations. The main speedup comes from writing the R `Rfun` function in C, but this requires additional user intervention and good understanding of the tau statistic. So one has to abandon IDSpatialStats entirely which completely defeats its purpose of ease and is not feasible for some users. Given the novelty of this recent statistic, the R package serves an important role for first-time users and those who need to easily compute the tau statistic for a relatively small dataset. This code is also for one form of the statistic while the R pckage offers much functionality besides.
 
 ## Replication
-Unfortunately I can't share the dataset for replication but can describe what is needed:
+Unfortunately I can't share the dataset but can describe what you need:
 * R v3.5.1
-* library `Rcpp` for `sourceCpp()`. Note that `IDSpatialStats` isn't required.
-* data = R `matrix`-type object with columns named: "ORIG_ID"; "x"; "y"; "onset" and no missing data. For non-cases, the "onset" column should be numerically coded as "-999".
+* library `Rcpp` for `sourceCpp()`. `IDSpatialStats` isn't required.
+* data = R `matrix`-type object with columns named: "ORIG_ID"; "x"; "y"; "onset" and no missing data. For non-cases, the "onset" column should be numerically coded as -999.
 
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
-* GPU computations. A good starting place for rapid code development is MATLAB's `gpuArray` class.
+* GPU computations. A good starting place for rapid code development would be MATLAB's `gpuArray` class.
 * separating distance calculations from the Rfun code didn't lead to a speedup. Even though distances are needless calculated multiple times, the slowdown probably comes from storing these distances in slower-to-access caches, when a just-in-time method works faster.
 * **Have you found an even faster way to do this? I'm open in principle to pull requests to this repo but message me to check.**
-* **Found a bug or even a typo? I'd love to know! No I'm not one of those scientists who gets irrationally offended when things get criticised. We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
+* **Found a bug or even a typo? I'd love to know! We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
 
 ## References
 *  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
