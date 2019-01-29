@@ -6,12 +6,12 @@ I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plos
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" title="\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" /></a>
 
-which is the ratio of the odds of finding any case *j* which is related (*z<sub>ij</sub> = 1, else 0*) to any case *i*, within an annulus region (radii *d<sub>1</sub>*,*d<sub>2</sub>*) around case *i*, versus the same but at any *d<sub>ij</sub>* distance separation (including *d<sub>ij</sub>=0*).
-Where the odds are estimated as:
+which is the ratio of the prevalence of any case *j* which is related (*z<sub>ij</sub> = 1, else 0*) to any case *i*, within an annulus region (radii *d<sub>1</sub>*,*d<sub>2</sub>*) around case *i*, versus the same but at any *d<sub>ij</sub>* distance separation (including *d<sub>ij</sub>=0*).
+Where the prevalence is estimated as:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" title="\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" /></a>
 
-which is the ratio of the number of related case pairs within a specified distance versus the same for unrelated case pairs, for *N* cases with indicatory function **1**(⋅). 
+which is the proportion of related case pairs within a specified distance versus the same for any pairs (between cases and/or non-cases), for *N* people with indicator function **1**(⋅). 
 
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a>.
 
