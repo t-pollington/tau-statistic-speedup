@@ -16,10 +16,11 @@ which is the proportion of related case pairs within a specified distance versus
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information, if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> then *z_<sub>ij</sub>*=1 else 0.
 
 ## How the speedup was done
-Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403) from `spatialfuncs.c` source file for the [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), applied the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `getTau()` without needing `library(IDSpatialStats)` [lines 6-10](https://github.com/t-pollington/tau-statistic-speedup/blob/master/run_get_tau.R#L6). I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
+Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403) from `spatialfuncs.c` source file for the [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), coded the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `getTau()` without needing `library(IDSpatialStats)` on [lines 6-10](https://github.com/t-pollington/tau-statistic-speedup/blob/master/run_get_tau.R#L6). I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing useful comments.
 
-1. Stop calls to R within C (~26x speedup)
-*Description of previous implementation*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
+1. **Stop calls to R within C** (~26x speedup)
+
+*Currently*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
 ) (and internally `get_pi()` on [line 427](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L427
 )). My `get_tau()` function skips that step for easier reading here; so in essence the heart of the code was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
 ). `get_pi()` has 3 nested loops: over distance windows, then a double loop for paired links between people. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
@@ -27,18 +28,21 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 *Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user as if their `Rfun` was a simple if-else loop to choose between cases {1,2,3} (for the three options of the numerator or denominator counts; 'cases' doesn't mean ill people here but options!) then it should be pretty similar in C.
 
-2. Stop repeat evaluations of undirected edges (~2x speedup)
-*Description of previous implementation*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i* and *j* switching due to the modulus function. In most temporally-related or serotype-shared scenarios the pairs are undirected and so the summation is really 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{j<i}" /></a>.
+2. **Stop repeat evaluations of undirected edges** (~2x speedup)
+
+*Currently*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i* and *j* switching due to the modulus function. In most temporally-related or serotype-shared scenarios the pairs are undirected and so the summation is really 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{j<i}" /></a>.
 
 *Change*: So we apply this change and understandably get a ~2x speedup.
 
-3. Split the `posmat` data matrix into multiple vectors (~20% speedup)
-*Description of previous implementation*: As the loops sequentially go through `i`, `j` & `k` if posmat is large then the next rows value in memory may not be that close to the current location and this extra memory access time will make things slow.
+3. **Split the `posmat` data matrix into multiple vectors** (~20% speedup)
+
+*Currently*: As the loops sequentially go through `i`, `j` & `k` if posmat is large then the next rows value in memory may not be that close to the current location and this extra memory access time will make things slow.
 
 *Change*: Using vectors for each variable guarantees that the next observation for a variable will be next in memory. 
 
-4. Work with squared distances to avoid `sqrt()` (negligible speedup)
-*Description of previous implementation*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance needed to be calculated. 
+4. **Work with squared distances to avoid `sqrt()`** (negligible speedup)
+
+*Currently*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance needed to be calculated. 
 
 *Change*: Working with squared distance ranges can then mean that `sqrt` is made redundant. 
 
