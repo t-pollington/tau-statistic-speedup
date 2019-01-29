@@ -11,7 +11,7 @@ Where the prevalence is estimated as:
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq&space;i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq&space;d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" title="\hat{\pi}(d_1,d_2)=\frac{\sum_{i=1}^N\sum_{j=1,j\neq i}^N\mathbf{1}(z_{ij}=1,d_{1}\leq d_{ij}<d_2)}{\sum_{k=1}^N|\Omega_k(d_1,d_2)|}" /></a>
 
-which is the proportion of related case pairs within a specified distance versus the same for any pairs (between cases and/or non-cases), for *N* people with indicator function **1**(⋅). 
+which is the proportion of related case pairs within a specified distance versus the same for any pairs (between cases and/or non-cases), for *N* people with indicator function **1**(⋅). Note a minor correction here versus the original by Lessler et al as we use half-closed distance intervals which was updated by @gilesjohnr on 17 Dec 2018.
 
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a>.
 
@@ -23,8 +23,8 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 ) (and internally `get_pi()` on [line 427](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L427
 )). My `get_tau()` function skips that step for easier reading here; so in essence the heart of the code was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
 ). `get_pi()` loops over `i` distance windows (where `i` is not to be confused with *i* cases in the equation above!); then `j` people and their paired links with `k` people as another loop. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
-) where the R function `Rfun` is called within C for each of the `i`*`j`*`k` loop evaluations.
-*Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user to do as if their `Rfun` was a relatively simple if-else loop to choose the cases {1,2,3} then similarly be easy to do in C.
+) where the R function `Rfun` is called within C for each of the `i`x`j`x`k` loop evaluations.
+*Change*: Formulate `Rfun` within `get_tau`. I think this is relatively easy for an R user to do as if their `Rfun` was a relatively simple if-else loop to choose between cases {1,2,3} (for the three options of the numerator or denominator counts, 'cases' doesn't mean ill people here but options!) then it should be similarly easy in C.
 
 **LINK R SCRIPT FILE**
 2. Stop repeat evaluations of undirected edges (~2x speedup)
@@ -40,7 +40,7 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 Unfortunately I can't share the dataset for replication but can describe what is needed:
 * R v3.5.1
 * library `Rcpp` for `sourceCpp()`. Note that `IDSpatialStats` isn't required.
-* data = R `matrix`-type object with named columns: "index"; "xcoord"; "ycoord"; "onset"
+* data = R `matrix`-type object with named columns: "ORIG_ID"; "x"; "y"; "onset" and no missing data. For non-cases onset should be numerically coded as "-999".
 
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
