@@ -16,12 +16,17 @@ which is the ratio of the number of related case pairs within a specified distan
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a>.
 
 ## How the speedup was done
+1. Stop calls to R within C (~26x speedup)
+2. Stop repeat evaluations of undirected edges (~2x speedup)
+3. Split the `posmat` data matrix into multiple vectors (~20% speedup)
+4. Work with squared distances to avoid `sqrt()` (negligible speedup)
+**explain**
 
 ## Replication
 Unfortunately I can't share the dataset for replication but can describe what is needed:
 * R v3.5.1
 * library `Rcpp` for `sourceCpp()`
-* data = R `matrix`-type object with named columns: "index";"xcoord";"ycoord";"onset"
+* data = R `matrix`-type object with named columns: "index"; "xcoord"; "ycoord"; "onset"
 
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
