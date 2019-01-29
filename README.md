@@ -37,10 +37,8 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 *Change*: Using vectors for each variable guarantees that the next observation for a variable will be next in memory. 
 
-**explain**
 4. Work with squared distances to avoid `sqrt()` (negligible speedup)
-**explain**
-
+*Description of previous implementation*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance needed to be calculated. 
 ##DIFFICULTY UPDATED IDSPATIALSTATS FOR SOME OF THESE AND GIVE REASON FOR R FUNCTION UTILITY##
 
 ## Replication
@@ -52,6 +50,7 @@ Unfortunately I can't share the dataset for replication but can describe what is
 ## Features not implemented
 * parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
 * GPU computations. A good starting place for rapid code development is MATLAB's `gpuArray` class.
+* separating distance calculations from the Rfun code didn't lead to a speedup. Even though distances are needless calculated multiple times, the slowdown probably comes from storing these distances in slower-to-access caches, when a just-in-time method works faster.
 * **Have you found an even faster way to do this? I'm open in principle to pull requests to this repo but message me to check.**
 * **Found a bug or even a typo? I'd love to know! No I'm not one of those scientists who gets irrationally offended when things get criticised. We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
 
