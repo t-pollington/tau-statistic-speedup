@@ -2,7 +2,7 @@ rm(list = ls()) #clean up
 library(Rcpp) #sourceCpp()
 setwd(FolderWhereYouStoreYourData)
 load(file = "YourData.RData") #say you have called your matrix object "X"
-
+setwd(FolderWhereYouStoreYourTauCFile)
 sourceCpp("get_tau.cpp")
 
 r.max = seq(50,500,50) #upper bound of each bin, in metres
