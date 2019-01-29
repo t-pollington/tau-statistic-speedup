@@ -64,6 +64,6 @@ Unfortunately I can't share the dataset but can describe what you need:
 * **Found a bug or even a typo? I'd love to know! We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
 
 ## References and credits
-*  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
-* `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) hasn't been used as it is several months behind the development repo.
+1.  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
+2. `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) hasn't been used as it is several months behind the development repo.
 * Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their site—Github **still** doesn't consider renderring LaTeX in README.md is a core functionality of code development!
