@@ -1,5 +1,5 @@
 # Tau statistic speedup
-An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 license please reference this cite-able resource (DoI: **xxxxxxxxxxxxxxxxx**).
+An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 license please reference this cite-able resource (DoI: **xxxxxxxxxxxxxxxxxTBC**).
 
 ## The statistic
 I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References) as we had data for the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic from the development repo of the `IDSpatialStats::get.tau()` function, leading to ~**52x speedup**.
