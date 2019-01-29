@@ -29,10 +29,14 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 2. Stop repeat evaluations of undirected edges (~2x speedup)
 *Description of previous implementation*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i* and *j* switching due to the modulus function. In most scenarios the pairs are undirected and so the summation is really 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{j<i}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{j<i}" /></a>.
+
 *Change*: So we apply this change and understandably get a ~2x speedup.
 
-**explain**
 3. Split the `posmat` data matrix into multiple vectors (~20% speedup)
+*Description of previous implementation*: As the loops sequentially go through `i`, `j` & `k` if posmat is large then the next rows value in memory may not be that close to the current location and this extra memory access time will make things slow.
+
+*Change*: Using vectors for each variable guarantees that the next observation for a variable will be next in memory. 
+
 **explain**
 4. Work with squared distances to avoid `sqrt()` (negligible speedup)
 **explain**
