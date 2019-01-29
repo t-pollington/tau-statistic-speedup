@@ -65,7 +65,7 @@ Unfortunately I can't share the dataset but can describe what you need:
 
 ## References
 *  Lessler J, Salje H, Grabowski MK, Cummings DAT. *Measuring Spatial Dependence for Infectious Disease Epidemiology*. PLoS One 2016; 11: 5–1–13. doi: [10.1371/journal.pone.0155249](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0155249).
-* `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that we have not used code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) as it is several months behind the development repo.
+* `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) hasn't been used as it is several months behind the development repo.
 
 ## Credits
-Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their domain. Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
+Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their site—Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
