@@ -1,5 +1,5 @@
 # Tau statistic speedup
-An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 license please reference this cite-able resource (DoI: **xxxxxxxxxxxxxxxxxTBC**).
+An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. Under the GPL-3.0 license please reference this cite-able resource DoI:[10.5281/zenodo.2552849](https://doi.org/10.5281/zenodo.2552849).
 
 * [The statistic](#The-statistic)
 * [How the speedup was done](#How-the-speedup-was-done)
