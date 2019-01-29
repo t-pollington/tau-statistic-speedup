@@ -68,4 +68,4 @@ Unfortunately I can't share the dataset but can describe what you need:
 * `HopkinsIDD/IDSpatialStats` (development repo for R's IDSpatialStats package) maintained by @jlessler and @gilesjohnr. Note that code from the [CRAN read-only mirror](https://github.com/cran/IDSpatialStats) hasn't been used as it is several months behind the development repo.
 
 ## Credits
-Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their site—Github **still** doesn't seem to think renderring LaTeX in README.md is part of core functionality in developing/describing code!
+Thanks to [CodeCogs](https://www.codecogs.com/latex/eqneditor.php "CodeCogs LaTeX equation editor, just copy+paste the HTML they provide") for renderring the mathematical formulae, let's hope they don't close down their site—Github **still** doesn't consider renderring LaTeX in README.md is a core functionality of code development!
