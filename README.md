@@ -3,7 +3,7 @@ An optimised implementation of the tau statistic (relative prevalence ratio form
 
 * [The statistic](#The-statistic)
 * [How the speedup was done](#How-the-speedup-was-done)
-* [What is the role of IDSpatialStats?](#What-is-the-role-of-IDSpatialStats?)
+* [What is the role of IDSpatialStats?](#What-is-the-role-of-IDSpatialStats)
 * [Replication](#Replication)
 * [Features not implemented](#Features-not-implemented)
 * [References and credits](#References-and-credits)
