@@ -1,5 +1,5 @@
 # Tau statistic speedup
-An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package.
+An optimised implementation of the tau statistic (relative prevalence ratio form), originally from R's `IDSpatialStats` package. 
 
 ## The statistic
 I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References) as we had data for the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic from the development repo of the `IDSpatialStats::get.tau()` function, leading to ~**52x speedup**.
@@ -16,7 +16,7 @@ which is the proportion of related case pairs within a specified distance versus
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a>.
 
 ## How the speedup was done
-Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) from `spatialfuncs.c` source file for the[2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), applied the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `getTau()` without needing `library(IDSpatialStats)` [lines 6-10](https://github.com/t-pollington/tau-statistic-speedup/blob/master/run_get_tau.R#L6). I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
+Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) from `spatialfuncs.c` source file for the [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), applied the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `getTau()` without needing `library(IDSpatialStats)` [lines 6-10](https://github.com/t-pollington/tau-statistic-speedup/blob/master/run_get_tau.R#L6). I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
 
 1. Stop calls to R within C (~26x speedup)
 *Description of previous implementation*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
@@ -39,7 +39,12 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 4. Work with squared distances to avoid `sqrt()` (negligible speedup)
 *Description of previous implementation*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance needed to be calculated. 
-##DIFFICULTY UPDATED IDSPATIALSTATS FOR SOME OF THESE AND GIVE REASON FOR R FUNCTION UTILITY##
+
+*Change*: Working with squared distance ranges can then mean that `sqrt` is made redundant. 
+
+## What is the role of IDSpatialStats?
+
+Although I have found enormous speedup improvements (these are particular important when constructing bootstrapped percentile confidence intervals that can take tens of hours for a data set of 15,000 people) there is still an important role for the IDSpatialStats package in tau statistic calculations. The main speedup by writing the R `Rfun` function in C requires additional user intervention and good understanding of the tau statistic. This then means one has to abandon IDSpatialStats entirely which is not feasible for some of its user base. Given the novelty of this recently introduced statistic the R package serves an important role for first-time users and those who need to easily compute the tau statistic for a relatively small dataset.
 
 ## Replication
 Unfortunately I can't share the dataset for replication but can describe what is needed:
