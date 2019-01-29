@@ -16,7 +16,7 @@ which is the ratio of the number of related case pairs within a specified distan
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a>.
 
 ## How the speedup was done
-Rather than running `IDSpatialStats::get.tau()` in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) of the C source file `spatialfuncs.c`, for their commit [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a) "Commit 2782d6d on 17 Dec 2018"), amended the code for the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and calling the C function. I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
+Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c) from `spatialfuncs.c` source file for the[2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), applied the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `get_tau()` without needing `library(IDSpatialStats)`. I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing comments.
 
 1. Stop calls to R within C (~26x speedup)
 Previously 
@@ -31,7 +31,7 @@ Previously
 ## Replication
 Unfortunately I can't share the dataset for replication but can describe what is needed:
 * R v3.5.1
-* library `Rcpp` for `sourceCpp()`
+* library `Rcpp` for `sourceCpp()`. Note that `IDSpatialStats` isn't required.
 * data = R `matrix`-type object with named columns: "index"; "xcoord"; "ycoord"; "onset"
 
 ## Features not implemented
