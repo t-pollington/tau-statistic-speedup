@@ -4,24 +4,25 @@
 #include <cstdlib>
 #include <iostream>
 #include <Rcpp.h>
+#define NTYPE unsigned short //fine if N<=65535
 using namespace std;
 using namespace Rcpp;
 // [[Rcpp::export]]
 
-NumericVector getTau(NumericVector ORIG_ID, NumericVector x, NumericVector y, NumericVector onset, NumericVector r, NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
-  int i,j,k;
+NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
+  NTYPE i,j,k;
   double dist2 = 0;
   double r2 = 0;
   double r2_low = 0;
   long long num_cnt, denom_cnt; //counters for those filling conditions//
-  int f_ans = 3; //used to hold the result of the function//
-  int serialintvl = 7; //mean serial interval of the disease
-  int r_size = r.size();
-  int N = ORIG_ID.size();
+  unsigned short f_ans = 3; //used to hold the result of the function//
+  unsigned short serialintvl = 7; //mean serial interval of the disease
+  unsigned short r_size = r.size();
+  NTYPE N = ORIG_ID.size();
   int *inds = INTEGER(index);
   NumericVector tau(r_size, NULL);
   double piInf = 0;
-  int nocheck = 0;
+  bool nocheck = 0;
 
 if(*inds==-1){ //if index was set to -1 then it means we can turn off bootstrapping checks 
   nocheck = 1; 
