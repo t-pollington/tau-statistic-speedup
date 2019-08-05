@@ -26,6 +26,7 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
   bool sameperson = 0;
   bool iscasepair = 0;
   bool temprelated = 0;
+  bool withindist = 0;
 
 if(*inds==-1){ //if index was set to -1 then it means we can turn off bootstrapping checks 
   check = 0; 
@@ -39,10 +40,10 @@ for (i=0;i<N;i++) {
   for (j=0; j<i;j++) {
     bstrapconflict = (inds[i] == inds[j])*check; //do not compare someone with themself if bootstrapping*/
     sameperson = (ORIG_ID[i]==ORIG_ID[j]); //ie the person migrated to a different place in the study
+    denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
     iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
     temprelated = (abs(onset[i]-onset[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
     num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated);
-    denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
   }
 }
 piInf = (double)num_cnt/denom_cnt;
@@ -56,27 +57,15 @@ for (k=0;k<r_size;k++) {
 
   for (i=0;i<N;i++) {
     for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
-      
-      /*do not compare someone with themself if bootstrapping*/
-      if (check==1){
-        if (inds[i] == inds[j]) continue;  
-      }
-
-      /*calculate the distance*/ 
-      dist2 = pow(x[i] - x[j],2) + pow(y[i] - y[j],2);    
-
-      if ((dist2>=r2) || (dist2<r2_low)) continue;
-  
-      if (ORIG_ID[i]==ORIG_ID[j]) continue; //ie f_ans=3
-      if((onset[i]==-999) || (onset[j]==-999)){ 
-        denom_cnt++;
-      } else if(abs(onset[i]-onset[j])>serialintvl){
-        denom_cnt++;
-      //could add temporal restrictions here that the pair be within the start and end dates of the study
-      } else {
-        num_cnt++;
-        denom_cnt++;
-      }
+      withindist = 0;
+      bstrapconflict = (inds[i] == inds[j])*check; //do not compare someone with themself if bootstrapping
+      dist2 = pow(x[i] - x[j],2) + pow(y[i] - y[j],2); //calculate the distance
+      withindist = ((dist2 >= r2_low) && (dist2 < r2));
+      sameperson = (ORIG_ID[i]==ORIG_ID[j]);
+      denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson)*withindist);
+      iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
+      temprelated = (abs(onset[i]-onset[j]) <= serialintvl);
+      num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
     }
   }
   tau[k] = (double)num_cnt/denom_cnt; // pi(r.min,r.max)
