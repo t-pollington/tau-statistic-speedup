@@ -22,6 +22,10 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
   NumericVector tau(r_size, NULL);
   double piInf = 0;
   bool check = 1;
+  bool bstrapconflict = 0;
+  bool sameperson = 0;
+  bool iscasepair = 0;
+  bool temprelated = 0;
 
 if(*inds==-1){ //if index was set to -1 then it means we can turn off bootstrapping checks 
   check = 0; 
@@ -33,23 +37,12 @@ denom_cnt = 0;
 //calc piInf
 for (i=0;i<N;i++) {
   for (j=0; j<i;j++) {
-    
-    /*do not compare someone with themself if bootstrapping*/
-    if (check==1){
-      if (inds[i] == inds[j]) continue;   
-    }
-
-    //Rfun function coded in C to choose between cases {1,2,3} for the numerator or denominator counts
-    if (ORIG_ID[i]==ORIG_ID[j]) continue; 
-    if((onset[i]==-999) || (onset[j]==-999)){ //prioritise the if-else order for NC-NC pair or NC-C/C-NC pair which are the largest % of the dataset. 
-      denom_cnt++;
-    } else if(abs(onset[i]-onset[j])>serialintvl){ //case pair not temporally-related
-      denom_cnt++;
-    //could add temporal restrictions here that the pair be within the start and end dates of the study
-    } else {
-      num_cnt++;
-      denom_cnt++;
-    }
+    bstrapconflict = (inds[i] == inds[j])*check; //do not compare someone with themself if bootstrapping*/
+    sameperson = (ORIG_ID[i]==ORIG_ID[j]); //ie the person migrated to a different place in the study
+    iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
+    temprelated = (abs(onset[i]-onset[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
+    num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated);
+    denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
   }
 }
 piInf = (double)num_cnt/denom_cnt;
