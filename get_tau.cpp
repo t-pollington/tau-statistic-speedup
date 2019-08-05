@@ -15,7 +15,6 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
   double r2 = 0;
   double r2_low = 0;
   long long num_cnt, denom_cnt; //counters for those filling conditions//
-  unsigned short f_ans = 3; //used to hold the result of the function//
   unsigned short serialintvl = 7; //mean serial interval of the disease
   unsigned short r_size = r.size();
   NTYPE N = ORIG_ID.size();
@@ -41,19 +40,13 @@ for (i=0;i<N;i++) {
     }
 
     //Rfun function coded in C to choose between cases {1,2,3} for the numerator or denominator counts
-    if (ORIG_ID[i]==ORIG_ID[j]) continue; // ie f_ans=3
+    if (ORIG_ID[i]==ORIG_ID[j]) continue; 
     if((onset[i]==-999) || (onset[j]==-999)){ //prioritise the if-else order for NC-NC pair or NC-C/C-NC pair which are the largest % of the dataset. 
-      f_ans = 2;
+      denom_cnt++;
     } else if(abs(onset[i]-onset[j])>serialintvl){ //case pair not temporally-related
-      f_ans = 2;
+      denom_cnt++;
     //could add temporal restrictions here that the pair be within the start and end dates of the study
     } else {
-      f_ans = 1;
-    }
-
-    if (f_ans==2) { /* this case is more common so placed at the top of this if-else chain*/
-      denom_cnt++;
-    } else if (f_ans==1) {
       num_cnt++;
       denom_cnt++;
     }
@@ -83,18 +76,11 @@ for (k=0;k<r_size;k++) {
   
       if (ORIG_ID[i]==ORIG_ID[j]) continue; //ie f_ans=3
       if((onset[i]==-999) || (onset[j]==-999)){ 
-        f_ans = 2;
+        denom_cnt++;
       } else if(abs(onset[i]-onset[j])>serialintvl){
-        f_ans = 2;
+        denom_cnt++;
       //could add temporal restrictions here that the pair be within the start and end dates of the study
       } else {
-        f_ans = 1;
-      }
-
-      /*update the counts appropriately*/
-      if (f_ans==2) { 
-        denom_cnt++;
-      } else if (f_ans==1) {
         num_cnt++;
         denom_cnt++;
       }
