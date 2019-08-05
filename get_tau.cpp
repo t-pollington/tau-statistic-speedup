@@ -21,10 +21,10 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
   int *inds = INTEGER(index);
   NumericVector tau(r_size, NULL);
   double piInf = 0;
-  bool nocheck = 0;
+  bool check = 1;
 
 if(*inds==-1){ //if index was set to -1 then it means we can turn off bootstrapping checks 
-  nocheck = 1; 
+  check = 0; 
 }
 
 num_cnt = 0;
@@ -35,7 +35,7 @@ for (i=0;i<N;i++) {
   for (j=0; j<i;j++) {
     
     /*do not compare someone with themself if bootstrapping*/
-    if (nocheck==0){
+    if (check==1){
       if (inds[i] == inds[j]) continue;   
     }
 
@@ -65,7 +65,7 @@ for (k=0;k<r_size;k++) {
     for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
       
       /*do not compare someone with themself if bootstrapping*/
-      if (nocheck==0){
+      if (check==1){
         if (inds[i] == inds[j]) continue;  
       }
 
