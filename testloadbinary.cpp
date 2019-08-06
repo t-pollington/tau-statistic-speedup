@@ -285,7 +285,7 @@ int main(){
   //#pragma omp simd collapse(2) reduction(+:num_cnt, +:denom_cnt)
   for (i=0;i<N;i++) {
     for (j=0; j<i;j++) {
-      bstrapconflict = (indxv[i] == indxv[j])*check; //do not compare someone with themself if bootstrapping*/
+      bstrapconflict = (indxv[i] == indxv[j]) && check; //do not compare someone with themself if bootstrapping*/
       sameperson = (orig_idenumv[i]==orig_idenumv[j]); //ie the person migrated to a different place in the study
       denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
       iscasepair = (KAv[i]!=-999) && (KAv[j]!=-999);
@@ -305,7 +305,7 @@ int main(){
     for (i=0;i<N;i++) {
       for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
         withindist = 0;
-        bstrapconflict = (indxv[i] == indxv[j])*check; //do not compare someone with themself if bootstrapping
+        bstrapconflict = (indxv[i] == indxv[j]) && check; //do not compare someone with themself if bootstrapping
         dist2 = pow(xv[i] - xv[j],2) + pow(yv[i] - yv[j],2); //calculate the distance
         withindist = ((dist2 >= r2_low) && (dist2 < r2));
         sameperson = (orig_idenumv[i]==orig_idenumv[j]);
