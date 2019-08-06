@@ -3,7 +3,12 @@
 #include <fstream> //streampos
 #include <vector>
 #include <iterator>
+#include <cstdlib>
+#include <cmath>
+#include <chrono>
+#define NTYPE unsigned short //fine if N<=65535
 using namespace std;
+using namespace std::chrono;
 int main(){
   ifstream fileorig_idenum("ORIG_IDenum.bin", ios::in|ios::binary|ios::ate);
   double* orig_idenum;
@@ -175,7 +180,10 @@ int main(){
   {
     cout << "Unable to open file";
   }
-  vector<unsigned short int> rmaxv(rmax, rmax + sizeof rmax / 2*sizeof rmax[0]);
+  vector<unsigned short int> rmaxv;
+  for(int i = 0; i<idx; i++){
+    rmaxv.push_back(rmax[i]);
+  }
   printf("rmaxv[0] = %d\n", rmaxv[0]);
   printf("rmaxv[1] = %d\n", rmaxv[1]);
   printf("rmaxv[2] = %d\n", rmaxv[2]);
@@ -246,5 +254,75 @@ int main(){
   }
   printf("indxv[0] = %d\n", indxv[0]);
   printf("indxv[16220] = %d\n", indxv[16220]);
+  
+  auto start = high_resolution_clock::now();
+  NTYPE i,j,k;
+  double dist2 = 0, r2 = 0, r2_low = 0;
+  long long num_cnt, denom_cnt; //counters for those filling conditions//
+  unsigned short serialintvl = 7; //mean serial interval of the disease
+  unsigned short r_size = rmaxv.size();
+  NTYPE N = orig_idenumv.size();
+  vector<double> tau(r_size, 0);
+  double piInf = 0;
+  bool check = 1;
+  bool bstrapconflict = 0;
+  bool sameperson = 0;
+  bool iscasepair = 0;
+  bool temprelated = 0;
+  bool withindist = 0;
+  
+  printf("N = %d\n", N);
+  printf("r_size = %d\n", r_size);
+  
+  if(indxv[0]==-1){ //if index was set to -1 then it means we can turn off bootstrapping checks 
+    check = 0; 
+  }
+  
+  num_cnt = 0;
+  denom_cnt = 0;
+  
+  //calc piInf
+  //#pragma omp simd collapse(2) reduction(+:num_cnt, +:denom_cnt)
+  for (i=0;i<N;i++) {
+    for (j=0; j<i;j++) {
+      bstrapconflict = (indxv[i] == indxv[j])*check; //do not compare someone with themself if bootstrapping*/
+      sameperson = (orig_idenumv[i]==orig_idenumv[j]); //ie the person migrated to a different place in the study
+      denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
+      iscasepair = (KAv[i]!=-999) && (KAv[j]!=-999);
+      temprelated = (abs(KAv[i]-KAv[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
+      num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated);
+    }
+  }
+  piInf = (double)num_cnt/denom_cnt;
+  printf("piInf = %f\n", piInf);
+  
+  for (k=0;k<r_size;k++) {
+    num_cnt = 0;
+    denom_cnt = 0;
+    r2  = pow(rmaxv[k],2.0); //transformation to squared distances to make sqrt() redundant in this line and the one below
+    r2_low = pow(rminv[k],2.0);
+    
+    for (i=0;i<N;i++) {
+      for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
+        withindist = 0;
+        bstrapconflict = (indxv[i] == indxv[j])*check; //do not compare someone with themself if bootstrapping
+        dist2 = pow(xv[i] - xv[j],2) + pow(yv[i] - yv[j],2); //calculate the distance
+        withindist = ((dist2 >= r2_low) && (dist2 < r2));
+        sameperson = (orig_idenumv[i]==orig_idenumv[j]);
+        denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson)*withindist);
+        iscasepair = (KAv[i]!=-999) && (KAv[j]!=-999);
+        temprelated = (abs(KAv[i]-KAv[j]) <= serialintvl);
+        num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
+      }
+    }
+    tau[k] = (double)num_cnt/denom_cnt; // pi(r.min,r.max)
+    tau[k] = (double)tau[k]/piInf;
+  }
+  auto stop = high_resolution_clock::now();
+  auto duration = duration_cast<microseconds>(stop - start);
+  cout << duration.count() << endl;
+  for (k=0;k<r_size;k++) {
+    printf("tau = %f\n", tau[k]);
+  }
 return(0);
 }
