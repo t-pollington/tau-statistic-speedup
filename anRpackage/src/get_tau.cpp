@@ -53,7 +53,7 @@ for (k=0;k<r_size;k++) {
   num_cnt = 0;
   denom_cnt = 0;
   r2  = pow(r[k],2); //transformation to squared distances to make sqrt() redundant in this line and the one below
-  r2_low = pow(r_low[k],2);
+  r2_low = pow(r_low[k],2); 
 
   for (i=0;i<N;i++) {
     for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
