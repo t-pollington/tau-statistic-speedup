@@ -1,6 +1,6 @@
 //Credit: Inspired and amended from https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a by @gilesjohnr @jlessler
 //Author: @t-pollington
-//Date: 6 Aug 2019
+//Date: 29 Jan 2019
 #include <cstdlib>
 #include <iostream>
 #include <Rcpp.h>
@@ -57,15 +57,15 @@ for (k=0;k<r_size;k++) {
 
   for (i=0;i<N;i++) {
     for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
-      withindist = 0;
       bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping
+      sameperson = (ORIG_ID[i]==ORIG_ID[j]);
       dist2 = pow(x[i] - x[j],2) + pow(y[i] - y[j],2); //calculate the distance
       withindist = ((dist2 >= r2_low) && (dist2 < r2));
-      sameperson = (ORIG_ID[i]==ORIG_ID[j]);
-      denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson)*withindist);
+      if(bstrapconflict||!withindist||sameperson) continue;
+      denom_cnt = denom_cnt + 1;
       iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
       temprelated = (abs(onset[i]-onset[j]) <= serialintvl);
-      num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
+      num_cnt = num_cnt + (iscasepair*temprelated);
     }
   }
   tau[k] = (double)num_cnt/denom_cnt; // pi(r.min,r.max)
