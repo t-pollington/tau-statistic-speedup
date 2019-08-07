@@ -10,17 +10,19 @@ using namespace Rcpp;
 // [[Rcpp::export]]
 
 NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
+  IntegerVector ORIG_IDint = as<IntegerVector>(ORIG_ID);
+  IntegerVector onsetint = as<IntegerVector>(onset);
   NTYPE i,j,k;
-  double dist2 = 0;
-  double r2 = 0;
-  double r2_low = 0;
-  long long num_cnt, denom_cnt; //counters for those filling conditions//
+  float dist2 = 0;
+  float r2 = 0;
+  float r2_low = 0;
+  unsigned long num_cnt, denom_cnt; //counters for those filling conditions//
   unsigned short serialintvl = 7; //mean serial interval of the disease
   unsigned short r_size = r.size();
   NTYPE N = ORIG_ID.size();
   int *inds = INTEGER(index);
   NumericVector tau(r_size, NULL);
-  double piInf = 0;
+  float piInf = 0;
   bool check = 1;
   bool bstrapconflict = 0;
   bool sameperson = 0;
@@ -39,14 +41,14 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
   for (i=0;i<N;i++) {
     for (j=0; j<i;j++) {
       bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping*/
-      sameperson = (ORIG_ID[i]==ORIG_ID[j]); //ie the person migrated to a different place in the study
+      sameperson = (ORIG_IDint[i]==ORIG_IDint[j]); //ie the person migrated to a different place in the study
       denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
-      iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
-      temprelated = (abs(onset[i]-onset[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
+      iscasepair = (onsetint[i]!=-999) && (onsetint[j]!=-999);
+      temprelated = (abs(onsetint[i]-onsetint[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
       num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated);
     }
   }
-  piInf = (double)num_cnt/denom_cnt;
+  piInf = (float)num_cnt/denom_cnt;
   
   //calc pi(r2_low,r2)
   for (k=0;k<r_size;k++) {
@@ -61,15 +63,15 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
         bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping
         dist2 = pow(x[i] - x[j],2) + pow(y[i] - y[j],2); //calculate the distance
         withindist = ((dist2 >= r2_low) && (dist2 < r2));
-        sameperson = (ORIG_ID[i]==ORIG_ID[j]);
+        sameperson = (ORIG_IDint[i]==ORIG_IDint[j]);
         denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson)*withindist);
-        iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
-        temprelated = (abs(onset[i]-onset[j]) <= serialintvl);
+        iscasepair = (onsetint[i]!=-999) && (onsetint[j]!=-999);
+        temprelated = (abs(onsetint[i]-onsetint[j]) <= serialintvl);
         num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
       }
     }
-    tau[k] = (double)num_cnt/denom_cnt; // pi(r.min,r.max)
-    tau[k] = (double)tau[k]/piInf;
+    tau[k] = (float)num_cnt/denom_cnt; // pi(r.min,r.max)
+    tau[k] = (float)tau[k]/piInf;
   }
   return(tau);
 }
