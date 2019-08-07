@@ -45,7 +45,7 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 *Previously*: The standard compiler flags are '-O2' and it is unclear if the loops were fully vectorised given the `if(...) continue;` statements within them. 
 
-*Change*: Since the first version I have built the .cpp file into a minimal package using `Rcpp::Rcpp.package.skeleton()` with empty description and help files. The purpose is that the _configure_ file can set the 'g++' compiler flags to utilise '-O3' optimisation and '-mavx2' vectorisation which is common in CPU architectures; to tweak to your architecture please read [How to change and set Rcpp compile arguments](https://stackoverflow.com/questions/32586455/how-to-change-and-set-rcpp-compile-arguments). All `if()` statements in the inner loops have been replaced with boolean arithmetic. 
+*Change*: Since the first version I have built the .cpp file into a minimal package using `Rcpp::Rcpp.package.skeleton()` with empty description and help files. The purpose is that the _configure_ file can set the 'g++' compiler flags to utilise '-O3' optimisation and '-mavx2' vectorisation which is common in CPU architectures; to tweak to your architecture please read [How to change and set Rcpp compile arguments](https://stackoverflow.com/questions/32586455/how-to-change-and-set-rcpp-compile-arguments). All `if()` statements in the inner loops have been replaced with boolean arithmetic. Also reduced the data types of some `int` and `double` types.
 
 4. **Split the `posmat` data matrix into multiple vectors** (~20% speedup)
 

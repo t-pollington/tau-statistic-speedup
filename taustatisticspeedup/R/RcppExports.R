@@ -2,10 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 getTau <- function(ORIG_ID, x, y, onset, r, r_low, index) {
-    .Call(`_tau-statistic-speedup_getTau`, ORIG_ID, x, y, onset, r, r_low, index)
-}
-
-rcpp_hello_world <- function() {
-    .Call(`_tau-statistic-speedup_rcpp_hello_world`)
+    .Call(`_taustatisticspeedup_getTau`, ORIG_ID, x, y, onset, r, r_low, index)
 }
 

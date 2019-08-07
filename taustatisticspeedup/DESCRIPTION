@@ -1,0 +1,11 @@
+Package: taustatisticspeedup
+Type: Package
+Title: Speedup to IDSpatialStats implementation of the tau statistic
+Version: 1.1
+Date: 2019-08-07
+Author: Tim Pollington
+Maintainer: Tim Pollington github username t-pollington <noemail@email.com>
+Description: Calculates Lessler et al's Tau statistic (prevalence form).
+License: GPL-3.0
+Imports: Rcpp (>= 1.0.1)
+LinkingTo: Rcpp

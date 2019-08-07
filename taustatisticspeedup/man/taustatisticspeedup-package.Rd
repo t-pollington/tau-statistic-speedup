@@ -1,20 +1,20 @@
-\name{tau-statistic-speedup-package}
-\alias{tau-statistic-speedup-package}
-\alias{tau-statistic-speedup}
+\name{taustatisticspeedup-package}
+\alias{taustatisticspeedup-package}
+\alias{taustatisticspeedup}
 \docType{package}
-\title{\packageTitle{tau-statistic-speedup}}
-\description{\packageDescription{tau-statistic-speedup}}
+\title{\packageTitle{taustatisticspeedup}}
+\description{\packageDescription{taustatisticspeedup}}
 \details{
-  The DESCRIPTION file: \packageDESCRIPTION{tau-statistic-speedup}
-  \packageIndices{tau-statistic-speedup}
+  The DESCRIPTION file: \packageDESCRIPTION{taustatisticspeedup}
+  \packageIndices{taustatisticspeedup}
 
   This section should provide a more detailed overview of how to use the
   package, including the most important functions.
 }
 \author{
-  \packageAuthor{tau-statistic-speedup}
+  \packageAuthor{taustatisticspeedup}
   
-  Maintainer: \packageMaintainer{tau-statistic-speedup}
+  Maintainer: \packageMaintainer{taustatisticspeedup}
 }
 \references{
   This optional section can contain literature or other references for

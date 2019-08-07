@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // getTau
 NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index);
-RcppExport SEXP _tau-statistic-speedup_getTau(SEXP ORIG_IDSEXP, SEXP xSEXP, SEXP ySEXP, SEXP onsetSEXP, SEXP rSEXP, SEXP r_lowSEXP, SEXP indexSEXP) {
+RcppExport SEXP _taustatisticspeedup_getTau(SEXP ORIG_IDSEXP, SEXP xSEXP, SEXP ySEXP, SEXP onsetSEXP, SEXP rSEXP, SEXP r_lowSEXP, SEXP indexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,24 +22,13 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// rcpp_hello_world
-List rcpp_hello_world();
-RcppExport SEXP _tau-statistic-speedup_rcpp_hello_world() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpp_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_tau-statistic-speedup_getTau", (DL_FUNC) &_tau-statistic-speedup_getTau, 7},
-    {"_tau-statistic-speedup_rcpp_hello_world", (DL_FUNC) &_tau-statistic-speedup_rcpp_hello_world, 0},
+    {"_taustatisticspeedup_getTau", (DL_FUNC) &_taustatisticspeedup_getTau, 7},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_tau-statistic-speedup(DllInfo *dll) {
+RcppExport void R_init_taustatisticspeedup(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }
