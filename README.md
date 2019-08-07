@@ -9,7 +9,7 @@ An optimised implementation of the tau statistic (relative prevalence ratio form
 * [References and credits](#References-and-credits)
 
 ## The statistic
-I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References-and-credits) as we had data on the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}" title="\hat{\tau}" /></a> from the development repo of the `IDSpatialStats::get.tau()` function, leading to a ~**52x speedup**.
+I was evaluating the ['elevated prevalence' form](https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0155249.s003&type=supplementary#page=6 "Lessler et al. Appendix 5, p6") of the tau statistic [[Lessler et al]](#References-and-credits) as we had data on the underlying population (i.e. non-cases as well as cases) containing months of disease onset *t<sub>i</sub>* and UTM coordinates of their household (*x<sub>i</sub>*,*y<sub>i</sub>*). I optimised the implementation of the tau statistic <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}" title="\hat{\tau}" /></a> from the development repo of the `IDSpatialStats::get.tau()` function, leading to a ~**76x speedup**.
 
 <a href="https://www.codecogs.com/eqnedit.php?latex=\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" title="\hat{\tau}(d_1,d_2)=\frac{\hat{\pi}(d_1,d_2)}{\hat{\pi}(0,\infty)}" /></a>
 
@@ -23,11 +23,11 @@ which is the proportion of related case pairs within a specified distance versus
 The relatedness of a case pair *z<sub>ij</sub>*, is determined here using temporal information, if <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> then *z_<sub>ij</sub>*=1 else 0.
 
 ## How the speedup was done
-Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403) from `spatialfuncs.c` source file for the [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), coded the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `getTau()` without needing `library(IDSpatialStats)` on [lines 6-10](https://github.com/t-pollington/tau-statistic-speedup/blob/master/run_get_tau.R#L6). I have provided both the R script file `run_get_tau.R` and the C file `get_tau.cpp` containing useful comments.
+Rather than running `IDSpatialStats::get.tau()` function in an R script as described by `?get.tau()`, I isolated the C function responsible (`get_tau` on [line 403](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403) from `spatialfuncs.c` source file for the [2782d6d](https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a "Commit 2782d6d on 17 Dec 2018") commit), coded the four features summarised below, then ran it in an R script by sourcing it with `Rcpp::sourceCpp()` and then calling `getTau()` without needing `library(IDSpatialStats)` on [lines 6-10](https://github.com/t-pollington/tau-statistic-speedup/blob/master/run_get_tau.R#L6). I have provided commented R script file `run_get_tau.R` (in the root) and the C file `get_tau.cpp` (in the /src of the package) containing useful comments. 
 
 1. **Stop calls to R within C** (~26x speedup)
 
-*Currently*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
+*Previously*: Previously the R function `get.tau()` would call the `get_tau()` C function on lines [403-449](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L403
 ) (and internally `get_pi()` on [line 427](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L427
 )). My `getTau()` function skips that step for easier reading here, not contributing to the speedup; so in essence the heart of the code isolated was described by `get_pi()` on [lines 64-148](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L64
 ). `get_pi()` has 3 nested loops: over distance windows, then a double loop for paired links between people. The slowdown occurs at [lines 126-129](https://github.com/HopkinsIDD/IDSpatialStats/blob/master/src/spatialfuncs.c#L126
@@ -37,19 +37,25 @@ Rather than running `IDSpatialStats::get.tau()` function in an R script as descr
 
 2. **Stop repeat evaluations of undirected edges** (~2x speedup)
 
-*Currently*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i*,*j* switching due to the modulus function. In most temporally-related or serotype-shared scenarios the pairs are undirected and so the summation should really be 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{\mathbf{j<i}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{\mathbf{j<i}}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{\mathbf{j<i}}" /></a>.
+*Previously*: In the sum over all people the same link will be visited twice ie *i*->*j* and *j*->*i* but this isn't necessary as <a href="https://www.codecogs.com/eqnedit.php?latex=|t_j-t_i|<\text{mean&space;serial&space;interval}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?|t_j-t_i|<\text{mean&space;serial&space;interval}" title="|t_j-t_i|<\text{mean serial interval}" /></a> is symmetric to *i*,*j* switching due to the modulus function. In most temporally-related or serotype-shared scenarios the pairs are undirected and so the summation should really be 'upper triangular' style i.e. <a href="https://www.codecogs.com/eqnedit.php?latex=\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{\mathbf{j<i}}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\sum_{i=1}^{N}\sum_{j=1,j\neq&space;i}^{\mathbf{j<i}}" title="\sum_{i=1}^{N}\sum_{j=1,j\neq i}^{\mathbf{j<i}}" /></a>.
 
 *Change*: Understandably by halving the loop we get a ~2x speedup.
 
-3. **Split the `posmat` data matrix into multiple vectors** (~20% speedup)
+3. **Explicitly force the compiler to use AVX2 CPU vectorisation** (~47% speedup)
 
-*Currently*: `posmat` is the matrix argument that gets fed into `get.tau()`. As the loops sequentially go through `i`, `j` & `k`, if posmat is large columnwise then the next row's value in memory may not be that close to the current location and this extra memory access time will add delays.
+*Previously*: The standard compiler flags are '-O2' and it is unclear if the loops were fully vectorised given the `if(...) continue;` statements within them. 
+
+*Change*: Since the first version I have built the .cpp file into a minimal package using `Rcpp::Rcpp.package.skeleton()` with empty description and help files. The purpose is that the _configure_ file can set the 'g++' compiler flags to utilise '-O3' optimisation and '-mavx2' vectorisation which is common in CPU architectures; to tweak to your architecture please read [How to change and set Rcpp compile arguments](https://stackoverflow.com/questions/32586455/how-to-change-and-set-rcpp-compile-arguments). All `if()` statements in the inner loops have been replaced with boolean arithmetic. Also reduced the data types of some `int` and `double` types.
+
+4. **Split the `posmat` data matrix into multiple vectors** (~20% speedup)
+
+*Previously*: `posmat` is the matrix argument that gets fed into `get.tau()`. As the loops sequentially go through `i`, `j` & `k`, if posmat is large columnwise then the next row's value in memory may not be that close to the current location and this extra memory access time will add delays.
 
 *Change*: Using vectors for each variable guarantees that the next observation for a variable will be next in memory. 
 
-4. **Work with squared distances to avoid `sqrt()`** (negligible speedup)
+5. **Work with squared distances to avoid `sqrt()`** (negligible speedup)
 
-*Currently*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance was calculated. 
+*Previously*: To calculate the distance separation *d_<sub>ij</sub>* a Euclidean distance was calculated. 
 
 *Change*: Working with squared distance ranges can make `sqrt()` redundant. 
 
@@ -59,13 +65,13 @@ Although I have found enormous speedup improvements (constructing 500 bootstrapp
 
 ## Replication
 Unfortunately I can't share the dataset but can describe what you need:
-* R v3.5.1
+* R v3.6.0
 * library `Rcpp` for `sourceCpp()`. `IDSpatialStats` isn't required.
 * data = R `matrix`-type object with columns named: "ORIG_ID"; "x"; "y"; "onset" and no missing data. For non-cases, the "onset" column should be numerically coded as -999.
 
 ## Features not implemented
-* parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried using parallel packages in R and C's `#pragma omp parallel for` with `#include <omp.h>` but to no avail.
-* GPU computations. A good starting place for rapid code development would be MATLAB's `gpuArray` class.
+* parallel computations across the `for(i){}` loop for *i* in `get_tau.cpp`. I tried to no avail using 'RcppArmadillo' to enable `#pragma omp parallel for` within `get_tau.cpp` as there are [concerns that `Rcpp` alone can't deal with OpenMP](https://stackoverflow.com/questions/48069990/multithreaded-simd-vectorized-mandelbrot-in-r-using-rcpp-openmp). Applying `#pragma omp simd` to the loops after the compiler optimisations above gave no speed improvement; there were difficulties applying it since although the for loop over *i* goes from 1 to N the nested *j* loop is of different length which depends on *i*.
+* GPU computations. A good starting place for rapid code development would be MATLAB's `gpuArray` class or ArrayFire. My only reservation is the code would need adapting so the distance matrix is calculated on-the-fly only once rather than over the k-loop for the size of the radius intervals required. This would help reduce the amount of GPU device memory accesses from the GPU cores. 
 * separating distance calculations from the Rfun code didn't lead to a speedup. Even though distances are needless calculated multiple times, the slowdown probably comes from storing these distances in slower-to-access caches, when a just-in-time method works faster.
 * **Have you found an even faster way to do this? I'm open in principle to pull requests to this repo but message me to check.**
 * **Found a bug or even a typo? I'd love to know! We're not perfect and we should all be open to criticism so we can do the best science for infectious disease modelling.**
