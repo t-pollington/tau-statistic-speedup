@@ -4,3 +4,4 @@
 *.Ruserdata
 *.bin
 *.out
+.Rproj.user
