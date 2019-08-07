@@ -1,0 +1,3 @@
+useDynLib(tau-statistic-speedup, .registration=TRUE)
+exportPattern("^[[:alpha:]]+")
+importFrom(Rcpp, evalCpp)
