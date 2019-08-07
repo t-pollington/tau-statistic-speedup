@@ -1,10 +1,9 @@
 //Credit: Inspired and amended from https://github.com/HopkinsIDD/IDSpatialStats/commit/2782d6dcc9ee4be9855b5e468ce789425b81d49a by @gilesjohnr @jlessler
 //Author: @t-pollington
-//Date: 29 Jan 2019
+//Date: 6 Aug 2019
 #include <cstdlib>
 #include <iostream>
 #include <Rcpp.h>
-//#include <omp.h>
 #define NTYPE unsigned short //fine if N<=65535
 using namespace std;
 using namespace Rcpp;
@@ -37,10 +36,9 @@ num_cnt = 0;
 denom_cnt = 0;
 
 //calc piInf
-//#pragma omp simd collapse(2) reduction(+:num_cnt, +:denom_cnt)
 for (i=0;i<N;i++) {
   for (j=0; j<i;j++) {
-    bstrapconflict = (inds[i] == inds[j])*check; //do not compare someone with themself if bootstrapping*/
+    bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping*/
     sameperson = (ORIG_ID[i]==ORIG_ID[j]); //ie the person migrated to a different place in the study
     denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
     iscasepair = (onset[i]!=-999) && (onset[j]!=-999);
@@ -51,7 +49,6 @@ for (i=0;i<N;i++) {
 piInf = (double)num_cnt/denom_cnt;
 
 //calc pi(r2_low,r2)
-//#pragma omp simd collapse(3)
 for (k=0;k<r_size;k++) {
   num_cnt = 0;
   denom_cnt = 0;
@@ -61,7 +58,7 @@ for (k=0;k<r_size;k++) {
   for (i=0;i<N;i++) {
     for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
       withindist = 0;
-      bstrapconflict = (inds[i] == inds[j])*check; //do not compare someone with themself if bootstrapping
+      bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping
       dist2 = pow(x[i] - x[j],2) + pow(y[i] - y[j],2); //calculate the distance
       withindist = ((dist2 >= r2_low) && (dist2 < r2));
       sameperson = (ORIG_ID[i]==ORIG_ID[j]);
