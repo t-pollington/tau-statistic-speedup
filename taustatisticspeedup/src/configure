@@ -1,11 +1,11 @@
 #!/bin/bash
 if [ ! -d "~/.R" ]; then
   mkdir ~/.R; touch ~/.R/Makevars
-  echo "CXXFLAGS= -O3 -std=c++11 -Wall -mavx2" > ~/.R/Makevars
+  echo "CXXFLAGS= -O3 -std=c++11 -Wall -mavx2 -march=native" > ~/.R/Makevars
 elif [ ! -e "~/.R/Makevars" ]; then
   touch ~/.R/Makevars
-  echo "CXXFLAGS= -O3 -std=c++11 -Wall -mavx2" > ~/.R/Makevars
+  echo "CXXFLAGS= -O3 -std=c++11 -Wall -mavx2 -march=native" > ~/.R/Makevars
 else
   mv ~/.R/Makevars ~/.R/Makevars.bak_CustomConfig
-  echo "CXXFLAGS= -O3 -std=c++11 -Wall -mavx2" > ~/.R/Makevars
+  echo "CXXFLAGS= -O3 -std=c++11 -Wall -mavx2 -march=native" > ~/.R/Makevars
 fi
