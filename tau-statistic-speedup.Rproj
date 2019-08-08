@@ -15,4 +15,4 @@ LaTeX: pdfLaTeX
 BuildType: Package
 PackageUseDevtools: Yes
 PackagePath: taustatisticspeedup
-PackageInstallArgs: --no-multiarch --with-keep.source
+PackageInstallArgs: --preclean
