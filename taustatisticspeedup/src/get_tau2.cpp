@@ -9,19 +9,19 @@ using namespace std;
 using namespace Rcpp;
 // [[Rcpp::export]]
 
-NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
+NumericVector getTau2(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
   IntegerVector ORIG_IDint = as<IntegerVector>(ORIG_ID);
   IntegerVector onsetint = as<IntegerVector>(onset);
   NTYPE i,j,k;
   float dist2 = 0;
   float r2 = 0;
   float r2_low = 0;
-  unsigned long num_cnt, denom_cnt; //counters for those filling conditions//
+  unsigned long num_cnt = 0, denom_cnt = 0; //counters for those filling conditions//
   unsigned short serialintvl = 7; //mean serial interval of the disease
   unsigned short r_size = r.size();
   NTYPE N = ORIG_ID.size();
   int *inds = INTEGER(index);
-  NumericVector tau(r_size, NULL);
+  NumericVector tau2(r_size, NULL);
   float piInf = 0;
   bool check = 1;
   bool bstrapconflict = 0;
@@ -33,9 +33,6 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
   if(*inds==-1){ //if index was set to -1 then it means we can turn off bootstrapping checks 
     check = 0; 
   }
-  
-  num_cnt = 0;
-  denom_cnt = 0;
   
   //calc piInf
   for (i=0;i<N;i++) {
@@ -59,7 +56,6 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
     
     for (i=0;i<N;i++) {
       for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
-        withindist = 0;
         bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping
         dist2 = (x[i] - x[j])*(x[i] - x[j]) + (y[i] - y[j])*(y[i] - y[j]); //calculate the distance
         withindist = ((dist2 >= r2_low) && (dist2 < r2));
@@ -70,8 +66,8 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
         num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
       }
     }
-    tau[k] = (float)num_cnt/denom_cnt; // pi(r.min,r.max)
-    tau[k] = (float)tau[k]/piInf;
+    tau2[k] = (float)num_cnt/denom_cnt; // pi(r.min,r.max)
+    tau2[k] = (float)tau2[k]/piInf;
   }
-  return(tau);
+  return(tau2);
 }

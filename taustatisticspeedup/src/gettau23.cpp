@@ -9,7 +9,7 @@ using namespace std;
 using namespace Rcpp;
 // [[Rcpp::export]]
 
-NumericVector getTau3(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
+NumericVector getTau23(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
   IntegerVector ORIG_IDint = as<IntegerVector>(ORIG_ID);
   IntegerVector onsetint = as<IntegerVector>(onset);
   NTYPE R,i,j,k;
@@ -45,6 +45,8 @@ NumericVector getTau3(const NumericVector ORIG_ID, const NumericVector x, const 
       if(ORIG_IDint[i]==ORIG_IDint[j]) continue; //ie the person migrated to a different place in the study
       iscaseij = (onsetint[i]!=-999) && (onsetint[j]!=-999);
       temprelij = ((onsetint[j]-onsetint[i]) <= serialintvl) && ((onsetint[j]-onsetint[i]) >= 0);
+      denom_cnt = denom_cnt + 1; //add all pairs
+      num_cnt = num_cnt + (iscaseij && temprelij); //add all related pairs
       for (k=0;k<N;k++) {
         bstrapconflict = (j==k || i==k)||((inds[j] == inds[k]) && check)||((inds[i] == inds[k]) && check);
         sameperson = ((ORIG_IDint[j]==ORIG_IDint[k])||(ORIG_IDint[i]==ORIG_IDint[k]));
@@ -74,6 +76,8 @@ NumericVector getTau3(const NumericVector ORIG_ID, const NumericVector x, const 
         distij2 = (x[i] - x[j])*(x[i] - x[j]) + (y[i] - y[j])*(y[i] - y[j]); //calculate the distance
         withindist = ((distij2 >= r2_low) && (distij2 < r2));
         if(!withindist) continue;
+        denom_cnt = denom_cnt + 1; //add all pairs within distij2
+        num_cnt = num_cnt + (iscaseij && temprelij); //add all related pairs within distij2
         for (k=0;k<N;k++) {
           distik2 = (x[i] - x[k])*(x[i] - x[k]) + (y[i] - y[k])*(y[i] - y[k]); //calculate the distance
           withindist = ((distik2 >= r2_low) && (distik2 < r2));

@@ -5,9 +5,9 @@
 
 using namespace Rcpp;
 
-// getTau
-NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index);
-RcppExport SEXP _taustatisticspeedup_getTau(SEXP ORIG_IDSEXP, SEXP xSEXP, SEXP ySEXP, SEXP onsetSEXP, SEXP rSEXP, SEXP r_lowSEXP, SEXP indexSEXP) {
+// getTau2
+NumericVector getTau2(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index);
+RcppExport SEXP _taustatisticspeedup_getTau2(SEXP ORIG_IDSEXP, SEXP xSEXP, SEXP ySEXP, SEXP onsetSEXP, SEXP rSEXP, SEXP r_lowSEXP, SEXP indexSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,13 +18,49 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const NumericVector >::type r(rSEXP);
     Rcpp::traits::input_parameter< const NumericVector >::type r_low(r_lowSEXP);
     Rcpp::traits::input_parameter< SEXP >::type index(indexSEXP);
-    rcpp_result_gen = Rcpp::wrap(getTau(ORIG_ID, x, y, onset, r, r_low, index));
+    rcpp_result_gen = Rcpp::wrap(getTau2(ORIG_ID, x, y, onset, r, r_low, index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getTau3
+NumericVector getTau3(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index);
+RcppExport SEXP _taustatisticspeedup_getTau3(SEXP ORIG_IDSEXP, SEXP xSEXP, SEXP ySEXP, SEXP onsetSEXP, SEXP rSEXP, SEXP r_lowSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector >::type ORIG_ID(ORIG_IDSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type onset(onsetSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type r_low(r_lowSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(getTau3(ORIG_ID, x, y, onset, r, r_low, index));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getTau23
+NumericVector getTau23(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index);
+RcppExport SEXP _taustatisticspeedup_getTau23(SEXP ORIG_IDSEXP, SEXP xSEXP, SEXP ySEXP, SEXP onsetSEXP, SEXP rSEXP, SEXP r_lowSEXP, SEXP indexSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector >::type ORIG_ID(ORIG_IDSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type onset(onsetSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type r(rSEXP);
+    Rcpp::traits::input_parameter< const NumericVector >::type r_low(r_lowSEXP);
+    Rcpp::traits::input_parameter< SEXP >::type index(indexSEXP);
+    rcpp_result_gen = Rcpp::wrap(getTau23(ORIG_ID, x, y, onset, r, r_low, index));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_taustatisticspeedup_getTau", (DL_FUNC) &_taustatisticspeedup_getTau, 7},
+    {"_taustatisticspeedup_getTau2", (DL_FUNC) &_taustatisticspeedup_getTau2, 7},
+    {"_taustatisticspeedup_getTau3", (DL_FUNC) &_taustatisticspeedup_getTau3, 7},
+    {"_taustatisticspeedup_getTau23", (DL_FUNC) &_taustatisticspeedup_getTau23, 7},
     {NULL, NULL, 0}
 };
 
