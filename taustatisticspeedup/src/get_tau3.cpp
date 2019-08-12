@@ -17,7 +17,7 @@ NumericVector getTau3(const NumericVector ORIG_ID, const NumericVector x, const 
   float distik2 = 0;
   float r2 = 0;
   float r2_low = 0;
-  unsigned long num_cnt = 0, denom_cnt = 0; //counters for those filling conditions//
+  unsigned long long num_cnt = 0, denom_cnt = 0; //counters for those filling conditions//
   unsigned short serialintvl = 7; //mean serial interval of the disease
   unsigned short r_size = r.size();
   NTYPE N = ORIG_ID.size();

@@ -33,3 +33,16 @@ ans2 = taustatisticspeedup::getTau23(X.NW[,"ORIG_IDenum"],X.NW[,"x"],X.NW[,"y"],
 timing = (proc.time() - ptm) #15hrs
 ans2 #[1] 24.121248 12.063201  9.397764  7.753535  6.479244  5.782907  5.110688  4.609856  3.918063  3.529968
 # [11]  3.101090  2.818041  2.615020  2.428179  2.292652  2.197046  2.095277  2.053082  2.005737  1.965266
+
+setwd(dir = "/home/tim/tau-statistic-speedup")
+load(file = "X.NWtau23.RData")
+load(file = "ans3.RData")
+r.max = seq(50,1000,50)
+pdf(file = "taucomparison.pdf")
+plot(r.max,ans23,type = "l",ylim = range(c(1,max(ans23))),ylab = "Tau variant",xlab = "d_2 (metres)",col = "red",main = "Comparison of different tau metrics \n as 50m distance bands on X.NW data")
+lines(r.max,ans3,col = "red",lty = 2)
+lines(r.max,tau2)
+legend(700, 20, legend=c("Tau_23","Tau_3","Tau_2","Tau_2 = 1"), col=c("red","red","black","black"), lty=c(1,2,1,2), cex=0.8)
+abline(h = 1,lty = 2)
+dev.off()
+
