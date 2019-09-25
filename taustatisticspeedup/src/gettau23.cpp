@@ -9,7 +9,7 @@ using namespace std;
 using namespace Rcpp;
 // [[Rcpp::export]]
 
-NumericVector getTau23(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
+NumericVector getTau23(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, const IntegerVector index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
   IntegerVector ORIG_IDint = as<IntegerVector>(ORIG_ID);
   IntegerVector onsetint = as<IntegerVector>(onset);
   NTYPE R,i,j,k;
@@ -43,16 +43,16 @@ NumericVector getTau23(const NumericVector ORIG_ID, const NumericVector x, const
       if(i==j) continue;
       if((inds[i] == inds[j]) && check) continue; //do not compare someone with themself if bootstrapping*/
       if(ORIG_IDint[i]==ORIG_IDint[j]) continue; //ie the person migrated to a different place in the study
-      iscaseij = (onsetint[i]!=-999) && (onsetint[j]!=-999);
-      temprelij = ((onsetint[j]-onsetint[i]) <= serialintvl) && ((onsetint[j]-onsetint[i]) >= 0);
+      iscaseij = (onsetint[inds[i]-1]!=-999) && (onsetint[inds[j]-1]!=-999);
+      temprelij = ((onsetint[inds[j]-1]-onsetint[inds[i]-1]) <= serialintvl) && ((onsetint[inds[j]-1]-onsetint[inds[i]-1]) >= 0);
       denom_cnt = denom_cnt + 1; //add all pairs
       num_cnt = num_cnt + (iscaseij && temprelij); //add all related pairs
       for (k=0;k<N;k++) {
         bstrapconflict = (j==k || i==k)||((inds[j] == inds[k]) && check)||((inds[i] == inds[k]) && check);
         sameperson = ((ORIG_IDint[j]==ORIG_IDint[k])||(ORIG_IDint[i]==ORIG_IDint[k]));
         denom_cnt = denom_cnt + (!bstrapconflict && !sameperson);
-        iscaseijk = iscaseij && (onsetint[k]!=-999);
-        temprelijk = temprelij && ((onsetint[k]-onsetint[j]) <= serialintvl) && ((onsetint[k]-onsetint[j]) >= 0);
+        iscaseijk = iscaseij && (onsetint[inds[k]-1]!=-999);
+        temprelijk = temprelij && ((onsetint[inds[k]-1]-onsetint[inds[j]-1]) <= serialintvl) && ((onsetint[inds[k]-1]-onsetint[inds[j]-1]) >= 0);
         num_cnt = num_cnt + (!bstrapconflict && !sameperson && iscaseijk && temprelijk);
       }
     }
@@ -71,21 +71,21 @@ NumericVector getTau23(const NumericVector ORIG_ID, const NumericVector x, const
         if(i==j) continue;
         if((inds[i] == inds[j]) && check) continue;
         if(ORIG_IDint[i]==ORIG_IDint[j]) continue; 
-        iscaseij = (onsetint[i]!=-999) && (onsetint[j]!=-999);
-        temprelij = ((onsetint[j]-onsetint[i]) <= serialintvl) && ((onsetint[j]-onsetint[i]) >= 0);
-        distij2 = (x[i] - x[j])*(x[i] - x[j]) + (y[i] - y[j])*(y[i] - y[j]); //calculate the distance
+        iscaseij = (onsetint[inds[i]-1]!=-999) && (onsetint[inds[j]-1]!=-999);
+        temprelij = ((onsetint[inds[j]-1]-onsetint[inds[i]-1]) <= serialintvl) && ((onsetint[inds[j]-1]-onsetint[inds[i]-1]) >= 0);
+        distij2 = (x[inds[i]-1] - x[inds[j]-1])*(x[inds[i]-1] - x[inds[j]-1]) + (y[inds[i]-1] - y[inds[j]-1])*(y[inds[i]-1] - y[inds[j]-1]); //calculate the distance
         withindist = ((distij2 >= r2_low) && (distij2 < r2));
         if(!withindist) continue;
         denom_cnt = denom_cnt + 1; //add all pairs within distij2
         num_cnt = num_cnt + (iscaseij && temprelij); //add all related pairs within distij2
         for (k=0;k<N;k++) {
-          distik2 = (x[i] - x[k])*(x[i] - x[k]) + (y[i] - y[k])*(y[i] - y[k]); //calculate the distance
+          distik2 = (x[inds[i]-1] - x[inds[k]-1])*(x[inds[i]-1] - x[inds[k]-1]) + (y[inds[i]-1] - y[inds[k]-1])*(y[inds[i]-1] - y[inds[k]-1]); //calculate the distance
           withindist = ((distik2 >= r2_low) && (distik2 < r2));
           bstrapconflict = (j==k || i==k)||((inds[j] == inds[k]) && check)||((inds[i] == inds[k]) && check);
           sameperson = ((ORIG_IDint[j]==ORIG_IDint[k])||(ORIG_IDint[i]==ORIG_IDint[k]));
           denom_cnt = denom_cnt + (!bstrapconflict && !sameperson && withindist);
-          iscaseijk = iscaseij && (onsetint[k]!=-999);
-          temprelijk = temprelij && ((onsetint[k]-onsetint[j]) <= serialintvl) && ((onsetint[k]-onsetint[j]) >= 0);
+          iscaseijk = iscaseij && (onsetint[inds[k]-1]!=-999);
+          temprelijk = temprelij && ((onsetint[inds[k]-1]-onsetint[inds[j]-1]) <= serialintvl) && ((onsetint[inds[k]-1]-onsetint[inds[j]-1]) >= 0);
           num_cnt = num_cnt + (!bstrapconflict && !sameperson && iscaseijk && temprelijk && withindist);
         }
       }

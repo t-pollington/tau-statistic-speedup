@@ -9,7 +9,7 @@ using namespace std;
 using namespace Rcpp;
 // [[Rcpp::export]]
 
-NumericVector getTau2(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, SEXP index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
+NumericVector getTau2(const NumericVector ORIG_ID, const NumericVector x, const NumericVector y, const NumericVector onset, const NumericVector r, const NumericVector r_low, const IntegerVector index){ //see how multiple vector arguments are parsed in here rather than the single posmat matrix
   IntegerVector ORIG_IDint = as<IntegerVector>(ORIG_ID);
   IntegerVector onsetint = as<IntegerVector>(onset);
   NTYPE i,j,k;
@@ -40,8 +40,8 @@ NumericVector getTau2(const NumericVector ORIG_ID, const NumericVector x, const 
       bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping*/
       sameperson = (ORIG_IDint[i]==ORIG_IDint[j]); //ie the person migrated to a different place in the study
       denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
-      iscasepair = (onsetint[i]!=-999) && (onsetint[j]!=-999);
-      temprelated = (abs(onsetint[i]-onsetint[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
+      iscasepair = (onsetint[inds[i]-1]!=-999) && (onsetint[inds[j]-1]!=-999);
+      temprelated = (abs(onsetint[inds[i]-1]-onsetint[inds[j]-1]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
       num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated);
     }
   }
@@ -57,12 +57,12 @@ NumericVector getTau2(const NumericVector ORIG_ID, const NumericVector x, const 
     for (i=0;i<N;i++) {
       for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
         bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping
-        dist2 = (x[i] - x[j])*(x[i] - x[j]) + (y[i] - y[j])*(y[i] - y[j]); //calculate the distance
+        dist2 = (x[inds[i]-1] - x[inds[j]-1])*(x[inds[i]-1] - x[inds[j]-1]) + (y[inds[i]-1] - y[inds[j]-1])*(y[inds[i]-1] - y[inds[j]-1]); //calculate the distance
         withindist = ((dist2 >= r2_low) && (dist2 < r2));
         sameperson = (ORIG_IDint[i]==ORIG_IDint[j]);
         denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson)*withindist);
-        iscasepair = (onsetint[i]!=-999) && (onsetint[j]!=-999);
-        temprelated = (abs(onsetint[i]-onsetint[j]) <= serialintvl);
+        iscasepair = (onsetint[inds[i]-1]!=-999) && (onsetint[inds[j]-1]!=-999);
+        temprelated = (abs(onsetint[inds[i]-1]-onsetint[inds[j]-1]) <= serialintvl);
         num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
       }
     }

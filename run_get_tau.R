@@ -17,7 +17,7 @@ timing/10 #2.0578s for commit 5dceac9 get_tau.cpp
 r.max = seq(50,500,50) #upper bound of each bin, in metres
 r.min = rep.int(0,length(r.max)) #lower bound of each bin
 ptm <- proc.time()
-ans = taustatisticspeedup::getTau3(X.NW[,"ORIG_IDenum"],X.NW[,"x"],X.NW[,"y"],X.NW[,"KA"],r.max,r.min,as.integer(-1)) #note that as we want the point estimate of tau we set the last argument to -1. You could adapt this function for bootstrapping by parsing in a vector of indices for the last argument.
+ans3 = taustatisticspeedup::getTau3(X.NW[,"ORIG_IDenum"],X.NW[,"x"],X.NW[,"y"],X.NW[,"KA"],r.max,r.min,as.integer(-1)) #note that as we want the point estimate of tau we set the last argument to -1. You could adapt this function for bootstrapping by parsing in a vector of indices for the last argument.
 timing = (proc.time() - ptm)
 timing/10 #12702s or 211mins
 ans # 15.714699  8.741592  7.314651  6.395508  5.551391  5.100317  4.596279  4.209525  3.607323  3.277187
@@ -29,9 +29,9 @@ ans2 = taustatisticspeedup::getTau3(X.NW[,"ORIG_IDenum"],X.NW[,"x"],X.NW[,"y"],X
 ptm <- proc.time()
 r.max = seq(50,1000,50) #upper bound of each bin, in metres
 r.min = rep.int(0,length(r.max)) #lower bound of each bin
-ans2 = taustatisticspeedup::getTau23(X.NW[,"ORIG_IDenum"],X.NW[,"x"],X.NW[,"y"],X.NW[,"KA"],r.max,r.min,as.integer(-1)) #note that as we want the point estimate of tau we set the last argument to -1. You could adapt this function for bootstrapping by parsing in a vector of indices for the last argument.
+ans23 = taustatisticspeedup::getTau23(X.NW[,"ORIG_IDenum"],X.NW[,"x"],X.NW[,"y"],X.NW[,"KA"],r.max,r.min,as.integer(-1)) #note that as we want the point estimate of tau we set the last argument to -1. You could adapt this function for bootstrapping by parsing in a vector of indices for the last argument.
 timing = (proc.time() - ptm) #15hrs
-ans2 #[1] 24.121248 12.063201  9.397764  7.753535  6.479244  5.782907  5.110688  4.609856  3.918063  3.529968
+ans23 #[1] 24.121248 12.063201  9.397764  7.753535  6.479244  5.782907  5.110688  4.609856  3.918063  3.529968
 # [11]  3.101090  2.818041  2.615020  2.428179  2.292652  2.197046  2.095277  2.053082  2.005737  1.965266
 
 setwd(dir = "/home/tim/tau-statistic-speedup")
