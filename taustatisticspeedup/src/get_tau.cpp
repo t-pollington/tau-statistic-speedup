@@ -43,8 +43,8 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
       bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping*/
       sameperson = (ORIG_IDint[i]==ORIG_IDint[j]); //ie the person migrated to a different place in the study
       denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson));
-      iscasepair = (onsetint[i]!=-999) && (onsetint[j]!=-999);
-      temprelated = (abs(onsetint[i]-onsetint[j]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
+      iscasepair = (onsetint[inds[i]-1]!=-999) && (onsetint[inds[j]-1]!=-999);
+      temprelated = (abs(onsetint[inds[i]-1]-onsetint[inds[j]-1]) <= serialintvl); //could add temporal restrictions here that the pair be within the start/end dates of the study
       num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated);
     }
   }
@@ -61,12 +61,12 @@ NumericVector getTau(const NumericVector ORIG_ID, const NumericVector x, const N
       for (j=0; j<i;j++) { //lower triangular access only as undirected pairs assumed
         withindist = 0;
         bstrapconflict = (inds[i] == inds[j]) && check; //do not compare someone with themself if bootstrapping
-        dist2 = (x[i] - x[j])*(x[i] - x[j]) + (y[i] - y[j])*(y[i] - y[j]); //calculate the distance
+        dist2 = (x[inds[i]-1] - x[inds[j]-1])*(x[inds[i]-1] - x[inds[j]-1]) + (y[inds[i]-1] - y[inds[j]-1])*(y[inds[i]-1] - y[inds[j]-1]); //calculate the distance
         withindist = ((dist2 >= r2_low) && (dist2 < r2));
         sameperson = (ORIG_IDint[i]==ORIG_IDint[j]);
         denom_cnt = denom_cnt + (!(bstrapconflict)*!(sameperson)*withindist);
-        iscasepair = (onsetint[i]!=-999) && (onsetint[j]!=-999);
-        temprelated = (abs(onsetint[i]-onsetint[j]) <= serialintvl);
+        iscasepair = (onsetint[inds[i]-1]!=-999) && (onsetint[inds[j]-1]!=-999);
+        temprelated = (abs(onsetint[inds[i]-1]-onsetint[inds[j]-1]) <= serialintvl);
         num_cnt = num_cnt + (!(bstrapconflict)*!(sameperson)*iscasepair*temprelated*withindist);
       }
     }
